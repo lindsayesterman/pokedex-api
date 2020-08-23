@@ -2,12 +2,14 @@
 const express = require('express')
 const morgan = require('morgan')
 require('dotenv').config()
+const helmet = require('helmet')
 const POKEDEX = require('./pokedex.json')
 const cors = require('cors')
 
 const app = express()
 
 app.use(morgan('dev'))
+app.use(helmet())
 app.use(cors())
 
 app.use(function validateBearerToken(req, res, next) {
@@ -28,18 +30,20 @@ function handleGetTypes(req, res){
 app.get('/types', handleGetTypes) 
 
 function handleGetPokemon (req, res) {
-  const response = POKEDEX.pokemon;
+  let response = POKEDEX.pokemon;
+
   if(req.query.name){
     response = response.filter(pokemon => 
       pokemon.name.toLowerCase().includes(req.query.name.toLowerCase())
       )
     }
     
-    if (req.query.type) {
-      response = response.filter(pokemon =>
-        pokemon.type.toLowerCase().includes(req.query.type.toLowerCase())
+    if(req.query.type){
+      response = response.filter(pokemon => 
+        pokemon.type.includes(req.query.type)
         )
       }
+      
       
       res.json(response)
     }
